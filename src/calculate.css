@@ -1,12 +1,11 @@
 html {
   background-color: #22272e;
-  color: #000;
 
   font-family: Arial, Verdana, Geneva, Tahoma, sans-serif;
   font-size: 16px;
 }
 
-#main {
+#calculate {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -23,4 +22,6 @@ html {
   border-radius: 6px;
 
   padding: 20px;
+
+  color: #000;
 }
