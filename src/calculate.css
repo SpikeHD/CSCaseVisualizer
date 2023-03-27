@@ -79,6 +79,9 @@ html {
 
   margin: auto;
   margin-top: 20px;
+  padding-bottom: 20px;
+
+  border-bottom: 1px solid #000;
 }
 
 #averages div {
@@ -96,7 +99,7 @@ html {
   align-items: center;
   justify-content: center;
 
-  margin: 20px;
+  margin: 10px;
 }
 
 .avg_cell .title {
