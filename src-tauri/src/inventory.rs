@@ -6,10 +6,12 @@ use json;
 
 static BASE_URL: &str = "https://steamcommunity.com/id/me/inventoryhistory/?app[]=730";
 
-struct CaseData {
+pub struct CaseData {
   case: String,
+  case_img: String,
   date: String,
   result: String,
+  result_img: String,
 }
 
 #[tauri::command]
@@ -36,6 +38,9 @@ pub fn get_main(cookie: String) {
     let s_id = get_session_id(&body);
     let mut c = String::from("0");
 
+    // The full data list
+    let mut list: Vec<CaseData> = Vec::new();
+
     println!("{}", s_id);
 
     while cont {
@@ -47,8 +52,6 @@ pub fn get_main(cookie: String) {
         c,
         s_id
       );
-
-      println!("{}", ajax_url);
       
       let res = client
         .get(&ajax_url)
@@ -76,10 +79,81 @@ pub fn get_main(cookie: String) {
         time = obj["cursor"]["time"].as_u64().unwrap() as u128;
         time_frac = obj["cursor"]["time_frac"].to_string();
       }
+
+      let html = obj["html"].as_str().unwrap().to_string();
+      let mut inner_list = scrape_page(html);
+
+      list.append(&mut inner_list);
     }
 
-    println!("Done!")
+    println!("Done! List size: {}", list.len());
   });
+}
+
+pub fn scrape_page(html: String) -> Vec<CaseData> {
+  let mut list: Vec<CaseData> = Vec::new();
+  let document = scraper::Html::parse_document(&html);
+  let history_sel = &scraper::Selector::parse(".tradehistoryrow").unwrap();
+  let history = document.select(history_sel);
+
+  for entry in history {
+    let reason_sel = &scraper::Selector::parse(".tradehistory_event_description").unwrap();
+    let reason = entry.select(reason_sel).next().unwrap().text().collect::<Vec<_>>().join(" ");
+
+    // Must make sure it's a case
+    if !reason.contains("Unlocked a container") {
+      continue;
+    }
+
+    let name_sel = &scraper::Selector::parse(".history_item_name").unwrap();
+    let mut name_res = entry.select(name_sel);
+    let case_name = name_res.next().unwrap().text().collect::<Vec<_>>().join(" ");
+
+    // The second name usually isn't the item name, but sometimes it is, so check if there are 3 matches
+    let mut count = 0;
+    for _ in name_res.clone() {
+      count += 1;
+    }
+
+    if count > 2 {
+      name_res.next();
+    }
+
+    let item_name = name_res.next().unwrap().text().collect::<Vec<_>>().join(" ");
+
+    // Images
+    let img_sel = &scraper::Selector::parse(".tradehistory_received_item_img").unwrap();
+    let mut img_res = entry.select(img_sel);
+    let case_img = img_res.next().unwrap().value().attr("src").unwrap().to_string();
+
+    // The second img usually isn't the item img, but sometimes it is, so check if there are 3 matches
+    let mut count = 0;
+    for _ in img_res.clone() {
+      count += 1;
+    }
+
+    if count > 2 {
+      img_res.next();
+    }
+
+    let item_img = img_res.next().unwrap().value().attr("src").unwrap().to_string();
+
+    // Date
+    let date_sel = &scraper::Selector::parse(".tradehistory_date").unwrap();
+    let date = entry.select(date_sel).next().unwrap().text().collect::<Vec<_>>().join(" ");
+
+    let case_data = CaseData {
+      case: case_name,
+      case_img,
+      date,
+      result: item_name,
+      result_img: item_img,
+    };
+
+    list.push(case_data);
+  }
+
+  list
 }
 
 pub fn get_session_id(html: &String) -> String {
