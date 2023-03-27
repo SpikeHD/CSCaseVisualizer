@@ -25,3 +25,50 @@ html {
 
   color: #000;
 }
+
+#calculate.showResults {
+  /* Remove absolute positioning so we can scroll the result properly */
+  position: relative;
+  top: 0;
+  left: 0;
+  transform: translate(0, 0);
+
+  margin: auto;
+  margin-top: 20px;
+}
+
+#history {
+  display: flex;
+  flex-direction: column;
+  
+  width: 100%;
+}
+
+#history .row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+
+  margin-top: 10px;
+}
+
+#history .row .cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-direction: column;
+
+  text-align:center;
+
+  width: 100%;
+}
+
+.row img {
+  width: 60px;
+  height: 60px;
+}

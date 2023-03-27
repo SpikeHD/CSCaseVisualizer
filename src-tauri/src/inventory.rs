@@ -13,6 +13,13 @@ pub struct CaseData {
   date: String,
   result: String,
   result_img: String,
+  rarity: RarityData,
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct RarityData {
+  condition: String,
+  rarity: String,
 }
 
 #[tauri::command]
@@ -28,6 +35,11 @@ pub fn get_main(window: tauri::Window, cookie: String) {
     let url = res.url().to_string();
     let body = res.text().unwrap();
     let username = get_username(&url);
+
+    if username.is_empty() {
+      window.emit("error", "Currently being ratelimited. Wait a few minutes and try again.").unwrap();
+      return;
+    }
 
     let mut cont = true;
     let mut time_frac = String::from("0");
@@ -83,7 +95,7 @@ pub fn get_main(window: tauri::Window, cookie: String) {
       }
 
       let html = obj["html"].as_str().unwrap().to_string();
-      let mut inner_list = scrape_page(html);
+      let mut inner_list = scrape_page(obj);
 
       list.append(&mut inner_list);
 
@@ -98,9 +110,12 @@ pub fn get_main(window: tauri::Window, cookie: String) {
   });
 }
 
-pub fn scrape_page(html: String) -> Vec<CaseData> {
+pub fn scrape_page(json: json::JsonValue) -> Vec<CaseData> {
   let mut list: Vec<CaseData> = Vec::new();
+
+  let html = json["html"].as_str().unwrap().to_string();
   let document = scraper::Html::parse_document(&html);
+
   let history_sel = &scraper::Selector::parse(".tradehistoryrow").unwrap();
   let history = document.select(history_sel);
 
@@ -113,13 +128,13 @@ pub fn scrape_page(html: String) -> Vec<CaseData> {
       continue;
     }
 
-    let name_sel = &scraper::Selector::parse(".history_item_name").unwrap();
+    let name_sel = &scraper::Selector::parse(".history_item").unwrap();
     let mut name_res = entry.select(name_sel);
     let case_name = name_res.next().unwrap().text().collect::<Vec<_>>().join(" ");
 
     // The second name usually isn't the item name, but sometimes it is, so check if there are 3 matches
     let mut count = 0;
-    for r in name_res.clone() {
+    for _ in name_res.clone() {
       count += 1;
     }
 
@@ -127,7 +142,14 @@ pub fn scrape_page(html: String) -> Vec<CaseData> {
       name_res.next();
     }
 
-    let item_name = name_res.next().unwrap().text().collect::<Vec<_>>().join(" ");
+    // Get instance and class id
+    let name_inst = name_res.next().unwrap();
+    let item_inst_id = name_inst.value().attr("data-instanceid").unwrap().to_string();
+    let item_class_id = name_inst.value().attr("data-classid").unwrap().to_string();
+
+    let item_rarity_data = get_rarity_from_data(json["descriptions"].clone(), item_class_id, item_inst_id);
+
+    let item_name = name_inst.text().collect::<Vec<_>>().join(" ");
 
     // Images
     let img_sel = &scraper::Selector::parse(".tradehistory_received_item_img").unwrap();
@@ -140,8 +162,7 @@ pub fn scrape_page(html: String) -> Vec<CaseData> {
       count += 1;
     }
 
-    if count > 2 {
-      img_res.next();
+    if count > 1 {
       img_res.next();
     }
 
@@ -157,12 +178,23 @@ pub fn scrape_page(html: String) -> Vec<CaseData> {
       date,
       result: item_name,
       result_img: item_img,
+      rarity: item_rarity_data
     };
 
     list.push(case_data);
   }
 
   list
+}
+
+fn get_rarity_from_data(descriptions: json::JsonValue, instanceid: String, classid: String) -> RarityData {
+  let key = format!("{}_{}", classid, instanceid);
+  let tags = &descriptions[key]["tags"];
+
+  RarityData {
+    condition: tags["5"]["internal_name"].as_str().unwrap().to_string(),
+    rarity: tags["4"]["internal_name"].as_str().unwrap().to_string(),
+  }
 }
 
 pub fn get_session_id(html: &String) -> String {
@@ -173,6 +205,9 @@ pub fn get_session_id(html: &String) -> String {
 
 pub fn get_username(url: &String) -> String {
   let re = Regex::new(r#"https://steamcommunity.com/id/([^/]+)/"#).unwrap();
-  let username = re.captures(&url).unwrap().get(1).unwrap().as_str();
+  let username = match re.captures(&url).unwrap().get(1) {
+    Some(u) => u.as_str(),
+    None => return "".to_string(),
+  };
   username.to_string()
 }

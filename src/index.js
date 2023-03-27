@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const calc = document.querySelector('#calculate')
   const cookie = document.querySelector('#cookie')
 
+  const prog = document.querySelector('#progress')
+  const loading = document.querySelector('#loading')
+
   btn.addEventListener('click', () => {
     btn.classList.add('clicked')
     
@@ -22,12 +25,60 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Listen for tauri page process
     listen('page_process', ({ payload }) => {
-      const prog = document.querySelector('#progress')
       prog.innerHTML = `${payload} pages...`
     })
 
     listen('finish_process', ({ payload }) => {
+      prog.classList.add('hide')
+      loading.classList.add('hide')
+      calc.classList.add('showResults')
+
+      showHistory(payload)
+
       console.log(payload)
     })
   })
 })
+
+async function showHistory(data) {
+  const history = document.querySelector('#history')
+  history.classList.remove('hide')
+
+  for (chunk of data) {
+    const row = document.createElement('div')
+    row.classList.add('row')
+
+    const box = document.createElement('div')
+    const boxImg = document.createElement('img')
+    const boxName = document.createElement('div')
+    box.classList.add('cell')
+    boxImg.src = chunk.case_img
+    boxName.innerHTML = chunk.case
+
+    box.appendChild(boxImg)
+    box.appendChild(boxName)
+    
+    const arrow = document.createElement('div')
+    arrow.classList.add('cell')
+
+    const arrowText = document.createElement('div')
+    arrowText.innerHTML = '->'
+    arrow.appendChild(arrowText)
+
+    const item = document.createElement('div')
+    const itemImg = document.createElement('img')
+    const itemName = document.createElement('div')
+    item.classList.add('cell')
+    itemImg.src = chunk.result_img
+    itemName.innerHTML = chunk.result
+
+    item.appendChild(itemImg)
+    item.appendChild(itemName)
+
+    row.appendChild(box)
+    row.appendChild(arrow)
+    row.appendChild(item)
+
+    history.appendChild(row)
+  }
+}
