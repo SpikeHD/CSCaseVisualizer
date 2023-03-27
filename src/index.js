@@ -150,12 +150,12 @@ async function process_stats(data) {
   // Set text for each rarity
   for (rarity of Object.keys(rarityCount)) {
     const rarityText = document.querySelector(`#${rarityMap[rarity]} .result`)
-    rarityText.innerHTML = `${rarityCount[rarity]}% (odds: ${officialOdds[rarityMap[rarity]]}%)`
+    if (rarityText) rarityText.innerHTML = `${rarityCount[rarity]}% (odds: ${officialOdds[rarityMap[rarity]]}%)`
   }
 
   for (cond of Object.keys(conditionCount)) {
     const condText = document.querySelector(`#${wearMap[cond]} .result`)
-    condText.innerHTML = `${conditionCount[cond]}%`
+    if (condText) condText.innerHTML = `${conditionCount[cond]}%`
   }
 
   const stattrakText = document.querySelector(`#st .result`)

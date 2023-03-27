@@ -57,11 +57,6 @@ pub fn get_main(window: tauri::Window, cookie: String) {
     println!("{}", s_id);
 
     loop {
-      // DEBUG
-      if page_count > 4 {
-        break;
-      }
-
       let ajax_url = format!(
         "https://steamcommunity.com/id/{}/inventoryhistory?ajax=1&cursor[time]={}&cursor[time_frac]={}&cursor[s]={}&sessionid={}&appid[]=730",
         username,
@@ -104,6 +99,8 @@ pub fn get_main(window: tauri::Window, cookie: String) {
       page_count += 1;
 
       window.emit("page_process", page_count).unwrap();
+
+      std::thread::sleep(std::time::Duration::from_millis(1500));
     }
 
     println!("Done! List size: {}", list.len());
@@ -187,8 +184,6 @@ pub fn scrape_page(json: json::JsonValue) -> Vec<CaseData> {
     };
 
     list.push(case_data);
-
-    std::thread::sleep(std::time::Duration::from_millis(2000));
   }
 
   list
