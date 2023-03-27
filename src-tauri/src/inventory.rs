@@ -94,7 +94,6 @@ pub fn get_main(window: tauri::Window, cookie: String) {
         time_frac = obj["cursor"]["time_frac"].to_string();
       }
 
-      let html = obj["html"].as_str().unwrap().to_string();
       let mut inner_list = scrape_page(obj);
 
       list.append(&mut inner_list);
@@ -147,7 +146,7 @@ pub fn scrape_page(json: json::JsonValue) -> Vec<CaseData> {
     let item_inst_id = name_inst.value().attr("data-instanceid").unwrap().to_string();
     let item_class_id = name_inst.value().attr("data-classid").unwrap().to_string();
 
-    let item_rarity_data = get_rarity_from_data(json["descriptions"].clone(), item_class_id, item_inst_id);
+    let item_rarity_data = get_rarity_from_data(json["descriptions"].clone(), item_inst_id, item_class_id);
 
     let item_name = name_inst.text().collect::<Vec<_>>().join(" ");
 
@@ -182,6 +181,8 @@ pub fn scrape_page(json: json::JsonValue) -> Vec<CaseData> {
     };
 
     list.push(case_data);
+
+    std::thread::sleep(std::time::Duration::from_millis(2000));
   }
 
   list
@@ -189,11 +190,25 @@ pub fn scrape_page(json: json::JsonValue) -> Vec<CaseData> {
 
 fn get_rarity_from_data(descriptions: json::JsonValue, instanceid: String, classid: String) -> RarityData {
   let key = format!("{}_{}", classid, instanceid);
-  let tags = &descriptions[key]["tags"];
+  let tags = &descriptions["730"][&key]["tags"];
+
+  let mut cond_idx = 5;
+  let mut rare_idx = 4;
+
+  // Count tag length
+  let mut count = 0;
+  for _ in tags.clone().members() {
+    count += 1;
+  }
+
+  if count < 5 {
+    cond_idx = count;
+    rare_idx = count - 1;
+  }
 
   RarityData {
-    condition: tags["5"]["internal_name"].as_str().unwrap().to_string(),
-    rarity: tags["4"]["internal_name"].as_str().unwrap().to_string(),
+    condition: tags[cond_idx]["internal_name"].as_str().unwrap().to_string(),
+    rarity: tags[rare_idx]["internal_name"].as_str().unwrap().to_string(),
   }
 }
 
