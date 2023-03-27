@@ -55,6 +55,7 @@ html {
   height: 100%;
 
   margin-top: 10px;
+  padding: 0 10px 20px 0;
 }
 
 #history .row .cell {
@@ -110,6 +111,12 @@ html {
 .avg_cell .title_cell {
   font-weight: bold;
   font-size: 20px;
+}
+
+.arrow {
+  width: 20px !important;
+  height: 20px !important;
+  padding-bottom: 6px;
 }
 
 .red {

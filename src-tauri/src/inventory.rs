@@ -172,7 +172,10 @@ pub fn scrape_page(json: json::JsonValue) -> Vec<CaseData> {
 
     // Date
     let date_sel = &scraper::Selector::parse(".tradehistory_date").unwrap();
-    let date = entry.select(date_sel).next().unwrap().text().collect::<Vec<_>>().join(" ");
+    let mut date = entry.select(date_sel).next().unwrap().text().collect::<Vec<_>>().join(" ");
+
+    // Filter out all escaped characters from date
+    date = Regex::new(r#"\\."#).unwrap().replace_all(&date, "").to_string();
 
     let case_data = CaseData {
       case: case_name,

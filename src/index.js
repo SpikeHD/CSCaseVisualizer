@@ -17,6 +17,14 @@ const wearMap = {
   'Battle-Scarred': 'bs'
 }
 
+const officialOdds = {
+  bl: 79.92,
+  pu: 15.98,
+  pi: 3.19,
+  re: 0.63,
+  go: 0.25,
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const btn = document.querySelector('button')
   const main = document.querySelector('#main')
@@ -77,9 +85,14 @@ async function showHistory(data) {
     const arrow = document.createElement('div')
     arrow.classList.add('cell')
 
-    const arrowText = document.createElement('div')
-    arrowText.innerHTML = '->'
-    arrow.appendChild(arrowText)
+    const arrowImg = document.createElement('img')
+    arrowImg.src = 'assets/arrow.svg'
+    arrowImg.classList.add('arrow')
+    arrow.appendChild(arrowImg)
+
+    const date = document.createElement('div')
+    date.innerHTML = chunk.date.replace(/[\r\n\t]/g, '')
+    arrow.appendChild(date)
 
     const item = document.createElement('div')
     const itemImg = document.createElement('img')
@@ -137,13 +150,16 @@ async function process_stats(data) {
   // Set text for each rarity
   for (rarity of Object.keys(rarityCount)) {
     const rarityText = document.querySelector(`#${rarityMap[rarity]} .result`)
-    rarityText.innerHTML = `${rarityCount[rarity]}%`
+    rarityText.innerHTML = `${rarityCount[rarity]}% (odds: ${officialOdds[rarityMap[rarity]]}%)`
   }
 
   for (cond of Object.keys(conditionCount)) {
     const condText = document.querySelector(`#${wearMap[cond]} .result`)
     condText.innerHTML = `${conditionCount[cond]}%`
   }
+
+  const stattrakText = document.querySelector(`#st .result`)
+  stattrakText.innerHTML = `${stattrakAvg}% (${stattrakCount})`
 
   const avgs = document.querySelector('#averages')
   avgs.classList.remove('hide')
