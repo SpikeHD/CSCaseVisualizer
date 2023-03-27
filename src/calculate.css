@@ -37,6 +37,7 @@ html {
   margin-top: 20px;
 }
 
+#averages,
 #history {
   display: flex;
   flex-direction: column;
@@ -71,4 +72,47 @@ html {
 .row img {
   width: 60px;
   height: 60px;
+}
+
+#averages {
+  flex-direction: row;
+
+  margin: auto;
+  margin-top: 20px;
+}
+
+#averages div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+}
+
+.avg_cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  margin: 20px;
+}
+
+.avg_cell .title {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.avg_cell .title_cell {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.red {
+  color: #ff0000;
+}
+
+.green {
+  color: #00ff00;
 }

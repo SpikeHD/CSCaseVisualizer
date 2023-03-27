@@ -1,6 +1,6 @@
 use reqwest::{self, header::COOKIE};
 use tauri::regex::Regex;
-use std::{fs, time::{SystemTime, UNIX_EPOCH}};
+use std::{time::{SystemTime, UNIX_EPOCH}};
 use scraper;
 use json;
 
@@ -41,7 +41,6 @@ pub fn get_main(window: tauri::Window, cookie: String) {
       return;
     }
 
-    let mut cont = true;
     let mut time_frac = String::from("0");
     let mut time = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -57,7 +56,12 @@ pub fn get_main(window: tauri::Window, cookie: String) {
 
     println!("{}", s_id);
 
-    while cont {
+    loop {
+      // DEBUG
+      if page_count > 4 {
+        break;
+      }
+
       let ajax_url = format!(
         "https://steamcommunity.com/id/{}/inventoryhistory?ajax=1&cursor[time]={}&cursor[time_frac]={}&cursor[s]={}&sessionid={}&appid[]=730",
         username,
@@ -84,7 +88,6 @@ pub fn get_main(window: tauri::Window, cookie: String) {
       };
 
       if obj["num"].as_i32().unwrap() == 0 {
-        cont = false;
         break;
       }
 
@@ -207,8 +210,8 @@ fn get_rarity_from_data(descriptions: json::JsonValue, instanceid: String, class
   }
 
   RarityData {
-    condition: tags[cond_idx]["internal_name"].as_str().unwrap().to_string(),
-    rarity: tags[rare_idx]["internal_name"].as_str().unwrap().to_string(),
+    condition: tags[cond_idx]["name"].as_str().unwrap_or("").to_string(),
+    rarity: tags[rare_idx]["internal_name"].as_str().unwrap_or("").to_string(),
   }
 }
 
