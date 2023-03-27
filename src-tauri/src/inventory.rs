@@ -6,6 +6,7 @@ use json;
 
 static BASE_URL: &str = "https://steamcommunity.com/id/me/inventoryhistory/?app[]=730";
 
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct CaseData {
   case: String,
   case_img: String,
@@ -15,7 +16,7 @@ pub struct CaseData {
 }
 
 #[tauri::command]
-pub fn get_main(cookie: String) {
+pub fn get_main(window: tauri::Window, cookie: String) {
   std::thread::spawn(move || {
     let client = reqwest::blocking::Client::new();
     let res = client
@@ -40,6 +41,7 @@ pub fn get_main(cookie: String) {
 
     // The full data list
     let mut list: Vec<CaseData> = Vec::new();
+    let mut page_count = 0;
 
     println!("{}", s_id);
 
@@ -84,9 +86,15 @@ pub fn get_main(cookie: String) {
       let mut inner_list = scrape_page(html);
 
       list.append(&mut inner_list);
+
+      page_count += 1;
+
+      window.emit("page_process", page_count).unwrap();
     }
 
     println!("Done! List size: {}", list.len());
+
+    window.emit("finish_process", &list).unwrap();
   });
 }
 
@@ -111,11 +119,11 @@ pub fn scrape_page(html: String) -> Vec<CaseData> {
 
     // The second name usually isn't the item name, but sometimes it is, so check if there are 3 matches
     let mut count = 0;
-    for _ in name_res.clone() {
+    for r in name_res.clone() {
       count += 1;
     }
 
-    if count > 2 {
+    if count > 1 {
       name_res.next();
     }
 
@@ -133,6 +141,7 @@ pub fn scrape_page(html: String) -> Vec<CaseData> {
     }
 
     if count > 2 {
+      img_res.next();
       img_res.next();
     }
 

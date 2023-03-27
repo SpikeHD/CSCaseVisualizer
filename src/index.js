@@ -1,4 +1,5 @@
 const { invoke } = window.__TAURI__.tauri
+const { listen } = window.__TAURI__.event
 
 document.addEventListener('DOMContentLoaded', () => {
   const btn = document.querySelector('button')
@@ -17,6 +18,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Invoke tauri method to begin processing
     invoke('get_main', {
       cookie: cookie.value
+    })
+
+    // Listen for tauri page process
+    listen('page_process', ({ payload }) => {
+      const prog = document.querySelector('#progress')
+      prog.innerHTML = `${payload} pages...`
+    })
+
+    listen('finish_process', ({ payload }) => {
+      console.log(payload)
     })
   })
 })
