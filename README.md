@@ -73,3 +73,6 @@ Your built program will be in the `src-tauri/target/release` folder.
 # Contributing
 
 Want to make a change? Great! Pull requests, issues, etc. are all welcome!
+
+# Thank you
+* https://github.com/cantryDev/CSGOCaseStatsViewer (helped in the initial kick-off of this project)
