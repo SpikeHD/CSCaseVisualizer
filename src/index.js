@@ -99,7 +99,30 @@ async function showHistory(data) {
     const itemName = document.createElement('div')
     item.classList.add('cell')
     itemImg.src = chunk.result_img
-    itemName.innerHTML = chunk.result
+    itemName.innerHTML = `${chunk.result} (${chunk.rarity.condition})`
+
+    // Set color for item
+    switch(chunk.rarity.rarity) {
+      case 'Rarity_Rare_Weapon':
+        item.classList.add('blue')
+        break
+
+      case 'Rarity_Mythical_Weapon':
+        item.classList.add('purple')
+        break
+      
+      case 'Rarity_Legendary_Weapon':
+        item.classList.add('pink')
+        break
+
+      case 'Rarity_Ancient_Weapon':
+        item.classList.add('red')
+        break
+
+      case 'Rarity_Ancient':
+        item.classList.add('gold')
+        break
+    }
 
     item.appendChild(itemImg)
     item.appendChild(itemName)

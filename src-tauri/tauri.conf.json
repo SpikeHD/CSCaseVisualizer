@@ -27,7 +27,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "spikehd.caseity.dev",
       "targets": "all"
     },
     "security": {
@@ -40,7 +40,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "caseity",
+        "title": "Caseity",
         "width": 1000,
         "height": 800
       }
