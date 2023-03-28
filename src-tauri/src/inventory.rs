@@ -1,6 +1,6 @@
 use reqwest::{self, header::COOKIE};
 use tauri::regex::Regex;
-use std::{time::{SystemTime, UNIX_EPOCH}};
+use std::{time::{SystemTime, UNIX_EPOCH}, io::Write};
 use scraper;
 use json;
 
@@ -106,6 +106,17 @@ pub fn get_main(window: tauri::Window, cookie: String) {
     println!("Done! List size: {}", list.len());
 
     window.emit("finish_process", &list).unwrap();
+
+    // Store the data in "dumps" folder
+    let now = SystemTime::now()
+      .duration_since(UNIX_EPOCH)
+      .unwrap()
+      .as_millis();
+
+    let file_name = format!("dumps/dump_{}.json", now);
+    let mut file = std::fs::File::create(file_name).unwrap();
+
+    file.write(&serde_json::to_string(&list).unwrap().as_bytes()).unwrap();
   });
 }
 

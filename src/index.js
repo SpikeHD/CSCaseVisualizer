@@ -25,7 +25,7 @@ const officialOdds = {
   go: 0.25,
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   const btn = document.querySelector('button')
   const main = document.querySelector('#main')
   const calc = document.querySelector('#calculate')
@@ -33,6 +33,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const prog = document.querySelector('#progress')
   const loading = document.querySelector('#loading')
+
+  // Load existing dumps
+  const dumps = await invoke('list_dumps')
+
+  const dumpElm = document.querySelector('#dumps')
+
+  for (dump of dumps) {
+    const dumpDiv = document.createElement('div')
+    dumpDiv.classList.add('dump')
+    dumpDiv.innerHTML = dump
+
+    dumpDiv.addEventListener('click', async () => {
+      const data = await invoke('get_dump', {
+        path: dump
+      })
+
+      prog.classList.add('hide')
+      loading.classList.add('hide')
+      main.classList.add('hide')
+
+      calc.classList.remove('hide')
+      calc.classList.add('showResults')
+
+      showHistory(data)
+      processStats(data)
+    })
+
+    dumpElm.appendChild(dumpDiv)
+  }
 
   btn.addEventListener('click', () => {
     btn.classList.add('clicked')
@@ -57,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       showHistory(payload)
 
-      process_stats(payload)
+      processStats(payload)
 
       console.log(payload)
     })
@@ -135,7 +164,7 @@ async function showHistory(data) {
   }
 }
 
-async function process_stats(data) {
+async function processStats(data) {
   const rarityCount = {}
   const conditionCount = {}
   let stattrakCount = 0
@@ -186,6 +215,12 @@ async function process_stats(data) {
 
   const avgs = document.querySelector('#averages')
   avgs.classList.remove('hide')
+
+  const totalCases = document.querySelector('#to .result')
+  totalCases.innerHTML = `${data.length}`
+
+  const totalNoSticker = document.querySelector('#toc .result')
+  totalNoSticker.innerHTML = `${caseCount}`
 
   console.log(rarityCount)
   console.log(conditionCount)
