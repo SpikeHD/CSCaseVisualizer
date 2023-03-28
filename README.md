@@ -26,6 +26,8 @@
 
 Download a [release](https://github.com/SpikeHD/Caseity/releases) and extract it to a folder of your choice. Or, if you don't trust it (that is fair), you can [build it yourself](#building).
 
+If it freezes up, feel free to just restart the program. If you have a vast CS inventory history, the program will probably take a little while.
+
 \**You should make sure to put it in a folder that does not require admin permissions, in case you want to save your dumps!*
 
 # Getting your Steam Cookie
