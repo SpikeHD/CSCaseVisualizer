@@ -63,7 +63,8 @@ It should go without saying that giving your cookie to a random program is a bad
 1. Clone the repository
 2. Navigate to the respository's root directory (`cd /path/to/Caseity`)
 3. Run `yarn install` to install the JavaScript dependencies
-4. Run `yarn tauri build` to build the program
+4. Run `cargo install` to install Rust dependencies
+5. Run `yarn tauri build` to build the program
 
 Your built program will be in the `src-tauri/target/release` folder.
 
