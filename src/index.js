@@ -169,6 +169,7 @@ async function processStats(data) {
   const conditionCount = {}
   let stattrakCount = 0
   let caseCount = data.filter(d => !d.result.includes('Sticker')).length
+  const keyCostEst = 2.5 * caseCount
 
   // Get counts for each rarity and condition
   for (chunk of data) {
@@ -221,6 +222,9 @@ async function processStats(data) {
 
   const totalNoSticker = document.querySelector('#toc .result')
   totalNoSticker.innerHTML = `${caseCount}`
+
+  const keyCost = document.querySelector('#kc .result')
+  keyCost.innerHTML = `$${keyCostEst.toFixed(2)}`
 
   console.log(rarityCount)
   console.log(conditionCount)
