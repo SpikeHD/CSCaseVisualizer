@@ -21,6 +21,7 @@
   - [Requirements](#requirements)
   - [Build steps](#build-steps)
 - [Contributing](#contributing)
+- [Thank you](#thank-you)
 
 # Setup
 
