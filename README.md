@@ -41,7 +41,14 @@ It should go without saying that giving your cookie to a random program is a bad
 
 # Screenshots
 
-TODO
+<summary>Expand for screenshots</summary>
+<details>
+  <div align="center">
+    <img height="800" src="https://user-images.githubusercontent.com/25207995/228137744-fe37cf38-3b4b-4965-b87c-8feac2c4fc34.png" />
+    <img src="https://user-images.githubusercontent.com/25207995/228137788-6cebf89f-711a-4361-862c-d0ff19d0575f.png" />
+    <img src="https://user-images.githubusercontent.com/25207995/228137689-6c94f7ba-b475-407b-b1be-11e7797ed9e6.png" />
+  </div>
+</details>
 
 # Building
 
